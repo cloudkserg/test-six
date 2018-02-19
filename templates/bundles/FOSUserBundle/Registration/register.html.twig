@@ -1,0 +1,69 @@
+{% trans_default_domain 'FOSUserBundle' %}
+
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Вход в систему</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+    <!-- Custom styles for this template -->
+    <link href="/css/login.css" rel="stylesheet">
+</head>
+
+<body class="text-center">
+
+{% if app.request.hasPreviousSession %}
+
+
+    {% for type, messages in app.session.flashbag.all() %}
+        {% for message in messages %}
+            <div class="flash-{{ type }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+
+
+<form action="{{ path("fos_user_registration_register") }}" method="post">
+    {{ form_widget(form._token) }}
+    <img class="mb-4" src="https://getbootstrap.com/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal"><a href="{{ path('fos_user_security_login') }}">Вход</a> / Регистрация</h1>
+
+    <input type="hidden" name="fos_user_registration_form[username]" value="username" />
+    <div id="fos_user_registration_form">
+        {{ form_row(form.email) }}
+        {{ form_row(form.plainPassword) }}
+    </div>
+
+    <div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
+    </div>
+    <a href="#">Зарегистрироваться с помощью facebook</a>
+    <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
+</form>
+
+
+
+
+<script src="https://code.jquery.com/jquery-1.12.4.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+
+</body>
+</html>
+
+
+

@@ -1,0 +1,90 @@
+{% extends "base.html.twig" %}
+
+{% block title %} Чат с друзьями {% endblock title %}
+
+{% block body %}
+
+<div class="row">
+    <div class="my-3 p-3 bg-white rounded box-shadow  col-3">
+        <h6>Друзья</h6>
+        {% for friend in user.myFriends %}
+        <div class="media text-muted pt-3">
+            <img data-src="holder.js/32x32?theme=thumb&amp;bg=007bff&amp;fg=007bff&amp;size=1" alt="32x32" class="mr-2 rounded" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2232%22%20height%3D%2232%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_16199194389%20text%20%7B%20fill%3A%23007bff%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A2pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_16199194389%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23007bff%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2211.046875%22%20y%3D%2217.2%22%3E32x32%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true" style="width: 32px; height: 32px;">
+            <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <strong class="text-gray-dark">{{ friend.username|e }}</strong>
+                </div>
+                <span class="d-block">Почта: {{ friend.email }}</span>
+            </div>
+        </div>
+        {%  endfor %}
+    </div>
+
+    <div class="my-3 p-3 bg-white rounded box-shadow col-7">
+        <h6 class="border-bottom border-gray pb-2 mb-0">Сообщения</h6>
+
+        {% for message in messages %}
+            <div class="media text-muted pt-3" id="list-message-{{ message.id }}">
+                <img data-src="holder.js/32x32?theme=thumb&amp;bg=007bff&amp;fg=007bff&amp;size=1" alt="32x32" class="mr-2 rounded" style="width: 32px; height: 32px;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2232%22%20height%3D%2232%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_1619919437d%20text%20%7B%20fill%3A%23007bff%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A2pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_1619919437d%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23007bff%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2211.046875%22%20y%3D%2217.2%22%3E32x32%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true">
+                <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                    <strong class="d-block text-gray-dark">@{{ message.user.username|e }} ({{ message.updated|date('d.m.Y H:i') }})</strong>
+                    <span class="list-message-text">{{ message.text|e }}</span>
+                    <input type="hidden" class="list-message-id" value="{{ message.id }}" />
+
+                    {%  if app.user.id == message.user.id %}
+                        <a href="#" data-toggle="modal" data-target="#exampleModal" data-edit="edit" >Редактировать</a>
+                    {% endif %}
+                </p>
+            </div>
+        {%  endfor %}
+
+    </div>
+
+</div>
+
+
+{% include "default/message_add.html.twig" %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+    $(document).ready(function () {
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('edit')
+
+            var modal = $(this)
+            var text = button.parent().find('.list-message-text').text()
+            var id = button.parent().find('.list-message-id').val()
+
+            if (recipient === 'edit') {
+                modal.find('.modal-title').text('Редактирование сообщения')
+                modal.find('#message-text').val(text)
+                modal.find('#message-from').attr('action', '/messages/' + id + '/edit')
+                modal.find('#message-submit').val('edit')
+                modal.find('#message-submit').data('edit-id', id)
+            } else {
+                modal.find('.modal-title').text('Создание сообщения')
+                modal.find('#message-text').val()
+                modal.find('#message-from').attr('action', '/messages/add')
+                modal.find('#message-submit').val('add')
+            }
+
+        })
+
+
+        $('#message-submit').on('click', function (event) {
+            button = $(event.target);
+            if (button.val() == 'edit') {
+                var id = button.data('edit-id')
+                var newText = $('#message-text').val();
+                $('#list-message-' + id).find('.list-message-text').text(newText)
+                $('#exampleModal').modal('hide');
+                event.stopPropagation();
+                return false;
+            }
+        })
+    });
+    </script>
+{% endblock %}
